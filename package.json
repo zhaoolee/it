@@ -1,0 +1,27 @@
+{
+  "name": "it",
+  "version": "1.0.0",
+  "description": "",
+  "main": "replace_readme_img.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "push": "node ./replace_readme_img.js && git add . && git commit -m 'ok' && git push"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhaoolee/it.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zhaoolee/it/issues"
+  },
+  "homepage": "https://github.com/zhaoolee/it#readme",
+  "dependencies": {
+    "fs-extra": "^9.0.1",
+    "moment": "^2.29.1",
+    "pkg": "^4.4.9",
+    "request": "^2.88.2"
+  }
+}
