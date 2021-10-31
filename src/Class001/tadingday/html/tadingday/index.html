@@ -4,11 +4,201 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="./static/bootstrap.min.css" rel="stylesheet">
+    <script src="./static/jquery-3.6.0.min.js"></script>
+
     <title>交易日批量查询</title>
 </head>
 <body>
 
-    <div>交易日批量查询</div>
+    <style>
+
+        .content_info{
+
+            display: inline-block;
+
+            width: 100px;
+
+            margin-bottom: 20px;
+            color: #FFFFFF;
+            text-align: center;
+        }
+
+        #content{
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap
+        }
+
+
+    </style>
+
+    <script>
+
+
+        let params = {
+            start_date: "2021-06-01",
+            end_date : "2021-09-01",
+            secu_market : "71"
+        }
+
+
+
+
+        function change_start_date(start_date){
+
+            console.log('start_date:', start_date);
+
+            params.start_date = start_date;
+
+
+        }
+
+
+        function change_end_date(end_date){
+
+            console.log('end_date:', end_date);
+
+            params.end_date = end_date;
+
+        }
+
+
+        function change_secu_market(){
+
+            let secu_market_select_dom = document.getElementById("secu_market_select");
+
+            let selected_option_info = secu_market_select_dom.options[secu_market_select_dom.selectedIndex]
+
+            params.secu_market = selected_option_info.value
+
+        }
+
+        // 检查参数
+
+        function check(start_date, end_date, secu_market) {
+
+            let check_pass = true;
+
+            if(start_date.length === 0){
+
+                check_pass = false;
+                alert("请选择开始时间!");
+
+            }
+
+
+            if(check_pass && end_date.length === 0) {
+                check_pass = false;
+                alert("请选择结束时间!");
+
+            }
+
+            if(check_pass && start_date >= end_date) {
+
+                alert("开始时间不得小于或等于结束时间,请重新选择!");
+            }
+
+            if(secu_market.length === 0) {
+
+                alert("请选择类型!")
+            }
+
+
+            return check_pass
+
+        }
+
+        // 提交请求,获取数据
+        function submit(){
+
+            const check_pass = check(params.start_date, params.end_date, params.secu_market);
+
+
+            if(check_pass === true){
+
+                $.ajax({
+                    url: `http://localhost:3000/gildataastock/v1/commontable/tadingday?start_date=${params.start_date}&end_date=${params.end_date}&secu_market=${params.secu_market}`,
+                    type: "get",
+                    success: (data, textStatus, jqXHR)=>{
+
+                        console.log("data==>>", data);
+
+
+                        let content_info = "";
+                        
+                        data["data"].map((value)=>{
+                            const if_trading_day =  value["if_trading_day"];
+                            const trading_date =  value["trading_date"];
+
+                            const background_color = if_trading_day === "是" ? "#8DC43E": "#F16421";
+
+
+                            content_info = content_info + `<div class="content_info" style='background-color: ${background_color};'>${trading_date}</div>`
+
+
+
+                        })
+
+
+
+                        $('#content').html(content_info);
+
+
+
+
+                    }
+
+                })
+
+            }
+            
+
+
+
+
+
+
+        }
+
+    </script>
+
+    <div style="text-align: center; font-size: 30px;padding: 20px">交易日批量查询</div>
+
+    <div style="display: flex;justify-content: space-between; margin: 0 20px;">
+    
+
+    <div>
+        <span>开始日期</span>
+        <input onchange="change_start_date(value)" type='date' value="2021-06-01"/>
+    </div> 
+    
+    
+    
+    <div>
+        <span>结束日期</span>
+        <input onchange="change_end_date(value)" type='date' value="2021-09-01"/>
+    </div> 
+    
+    
+    <div>
+        <span>选择类型</span> 
+        <select class="form-select" default id="secu_market_select" onchange="change_secu_market()">
+        <option value="71" selected>柜台交易市场</option>
+        <option value="72">香港联交所</option>
+        <option value="77">美国纳斯达克证券交易所</option>
+        <option value="83">沪深证券交易所</option>
+        <option value="89">银行间债券市场</option>
+      </select> 
+    </div>
+
+    <button  class="btn btn-success" onclick="submit()">查询</button>
+
+
+
+</div>
+
+<div id="content"></div>
     
 </body>
 </html>
