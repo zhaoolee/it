@@ -5,12 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon ./src/003-tadingday-server.js --watch ../"
+    "dev003": "nodemon ./src/003-tadingday-server.js --watch ./",
+    "dev004": "nodemon ./src/004-tadingday-server-and-sqlite --watch ./"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "better-sqlite3": "^7.4.5",
     "express": "^4.17.1"
   },
   "devDependencies": {

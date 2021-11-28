@@ -10,8 +10,8 @@ app.use(express.urlencoded({ extended: true })) // for parsing application/x-www
 
 const port = 3000;
 
-const key = "*************";
-const secret = "*************";
+const key = "***";
+const secret = "****";
 
 // 文档地址 https://www.hs.net/wiki/api/983_gildataastock_v1_commontable_tadingday.html
 // 示例访问链接 http://localhost:3000/gildataastock/v1/commontable/tadingday?end_date=2021-03-01&start_date=2021-01-01&secu_market=77
