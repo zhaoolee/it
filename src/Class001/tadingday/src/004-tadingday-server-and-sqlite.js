@@ -47,7 +47,6 @@ const insert_tadingday_info = db.prepare(`INSERT INTO tadingday_info (
 );`);
 
 
-
 const app = express()
 
 app.use(express.static('html'))
