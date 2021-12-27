@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev003": "nodemon ./src/003-tadingday-server.js --watch ./",
     "dev004": "concurrently  'nodemon ./src/004-tadingday-server-and-sqlite.js --watch ./' 'wait-on tcp:3000 && opener http://localhost:3000/tadingday'"
+
   },
   "keywords": [],
   "author": "",

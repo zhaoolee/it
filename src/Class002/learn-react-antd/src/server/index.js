@@ -1,8 +1,9 @@
 const https = require('https');
 const express = require('express');
 const path = require('path');
+const cors = require('cors')
 // 初始化数据库
-const db = require('better-sqlite3')(path.join(__dirname, "..", "data", "tadingday.sqlite"));
+const db = require('better-sqlite3')(path.join(__dirname, "data", "tadingday.sqlite"));
 // 新建数据表
 //  secu_market: 证券市场  if_trading_day:是否交易日 if_week_end:是否周末 if_month_end:是否月末  if_quarter_end:是否季末   if_year_end:是否年末 trading_date:交易日期
 db.exec(`
@@ -49,12 +50,14 @@ const insert_tadingday_info = db.prepare(`INSERT INTO tadingday_info (
 
 const app = express()
 
+app.use(cors())
+
 app.use(express.static('html'))
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
 
-const port = 3000;
+const port = 3100;
 
 const key = "5ac2e1ee-789e-4d6b-a52d-f533b99d6a36";
 const secret = "a666cbf1-9137-4ade-81e1-6a65d43f528b";
@@ -62,7 +65,7 @@ const secret = "a666cbf1-9137-4ade-81e1-6a65d43f528b";
 
 
 // 文档地址 https://www.hs.net/wiki/api/983_gildataastock_v1_commontable_tadingday.html
-// 示例访问链接 http://localhost:3000/gildataastock/v1/commontable/tadingday?end_date=2021-03-01&start_date=2021-01-01&secu_market=77
+// 示例访问链接 http://localhost:3100/gildataastock/v1/commontable/tadingday?end_date=2021-03-01&start_date=2021-01-01&secu_market=77
 
 async function get_token() {
     const tadingday_authorization = await new Promise((resolve, reject) => {
@@ -87,11 +90,11 @@ async function get_token() {
 
                 console.log(`BODY: ${token_res_data}`);
 
-                
+
 
                 const token_info = JSON.parse(token_res_data);
 
-                if(token_info["access_token"]){
+                if (token_info["access_token"]) {
 
                     const access_token = token_info["access_token"];
                     const token_type = token_info["token_type"]
@@ -100,7 +103,7 @@ async function get_token() {
                     resolve(tadingday_authorization);
 
 
-                }else(
+                } else (
 
                     resolve("")
 
@@ -154,22 +157,40 @@ app.get('/gildataastock/v1/commontable/tadingday', async (req, res) => {
 
             tadingday_res.on('end', () => {
                 console.log(`BODY: ${tadingday_res_body}`);
-                tadingday_res_body = JSON.parse(tadingday_res_body);
-                res.send(tadingday_res_body)
+                console.log('--Object.keys(tadingday_res_body)-->>', tadingday_res_body, Object.keys(JSON.parse(tadingday_res_body)),  Object.keys(JSON.parse(tadingday_res_body)).indexOf('error'));
 
-                // 存入数据库
+                if (Object.keys(JSON.parse(tadingday_res_body)).indexOf('error') > -1) {
 
-                tadingday_res_body["data"].map((value) => {
-                    value['request_secu_market'] = secu_market
-                    sava_data(value)
-                })
+                    
+
+                    let local_data_result = select_data({ "start_date": start_date, "end_date": end_date, "request_secu_market": secu_market })
+
+                    res.send({ data: local_data_result })
+
+                } else {
+
+                    tadingday_res_body = JSON.parse(tadingday_res_body);
+                    res.send(tadingday_res_body)
+    
+                    // 存入数据库
+    
+                    tadingday_res_body["data"].map((value) => {
+                        value['request_secu_market'] = secu_market
+                        sava_data(value)
+                    })
+
+
+
+                }
+
+
 
 
             })
 
         })
 
-        tadingday_req.on('error', (e)=>{
+        tadingday_req.on('error', (e) => {
             console.log(e);
         })
 
@@ -178,9 +199,9 @@ app.get('/gildataastock/v1/commontable/tadingday', async (req, res) => {
 
     } else {
 
-        let local_data_result =  select_data({ "start_date": start_date, "end_date": end_date, "request_secu_market": secu_market})
+        let local_data_result = select_data({ "start_date": start_date, "end_date": end_date, "request_secu_market": secu_market })
 
-        res.send({data: local_data_result})
+        res.send({ data: local_data_result })
 
     }
 
@@ -195,16 +216,16 @@ function sava_data(tadingday_info_atom) {
 
 
     try {
-        
+
         insert_tadingday_info.run(
             {
-                "secu_market": secu_market, 
-                "if_trading_day": if_trading_day, 
-                "if_week_end": if_week_end, 
-                "if_month_end": if_month_end, 
-                "if_quarter_end": if_quarter_end, 
-                "if_year_end": if_year_end, 
-                "trading_date": trading_date, 
+                "secu_market": secu_market,
+                "if_trading_day": if_trading_day,
+                "if_week_end": if_week_end,
+                "if_month_end": if_month_end,
+                "if_quarter_end": if_quarter_end,
+                "if_year_end": if_year_end,
+                "trading_date": trading_date,
                 "request_secu_market": request_secu_market
             }
         );
@@ -225,8 +246,8 @@ function select_data(value) {
 
         const result_data = select_tadingday_info.all(
             {
-                "start_date": start_date, 
-                "end_date": end_date, 
+                "start_date": start_date,
+                "end_date": end_date,
                 "request_secu_market": request_secu_market
             }
         );
